@@ -1,9 +1,9 @@
 {
-  "name": "realtime-multiplayer-game",
+  "name": "crud-live-app",
   "version": "1.0.0",
+  "main": "index.js",
   "scripts": {
-    "build": "echo 'No build step needed'",
-    "dev": "vercel dev"
+    "start": "vercel dev"
   },
   "dependencies": {
     "mongodb": "^4.0.0"
