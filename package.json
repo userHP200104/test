@@ -2,7 +2,7 @@
   "name": "realtime-multiplayer-game",
   "version": "1.0.0",
   "scripts": {
-    "build": "echo 'No build step required'",
+    "build": "echo 'No build step needed'",
     "dev": "vercel dev"
   },
   "dependencies": {
