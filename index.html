@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multiplayer Game</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="game-container">
+    <h1>Multiplayer Game</h1>
+    <div id="game-status">No game joined.</div>
+    <button id="create-game">Create Game</button>
+    <input type="text" id="game-id-input" placeholder="Enter Game ID">
+    <button id="join-game">Join Game</button>
+    <div id="game-board">Click to toggle turn!</div>
+  </div>
+
+  <!-- Axios for API calls -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    let currentGameId = null;
+    let localGameState = { turn: 'X' };
+    let pollingInterval = null;
+
+    // Update UI with game state
+    function updateGameUI(state) {
+      document.getElementById('game-status').innerText = 'Game ID: ' + currentGameId + ' | Turn: ' + state.turn;
+      document.getElementById('game-board').innerText = 'Click to toggle turn (Current: ' + state.turn + ')';
+    }
+
+    // Polling function to fetch game state every 2 seconds
+    function startPolling() {
+      if (pollingInterval) clearInterval(pollingInterval);
+      pollingInterval = setInterval(async () => {
+        if (!currentGameId) return;
+        try {
+          const res = await axios.get('/api/get-game?gameId=' + currentGameId);
+          if (res.data && res.data.game) {
+            localGameState = res.data.game;
+            updateGameUI(localGameState);
+          }
+        } catch (error) {
+          console.error('Error fetching game state:', error);
+        }
+      }, 2000);
+    }
+
+    // Create Game
+    document.getElementById('create-game').addEventListener('click', async () => {
+      try {
+        const res = await axios.post('/api/create-game');
+        if (res.data && res.data.gameId) {
+          currentGameId = res.data.gameId;
+          localGameState = res.data.game;
+          updateGameUI(localGameState);
+          startPolling();
+          alert('Game created with ID: ' + currentGameId);
+        }
+      } catch (error) {
+        console.error('Error creating game:', error);
+        alert('Error creating game.');
+      }
+    });
+
+    // Join Game
+    document.getElementById('join-game').addEventListener('click', async () => {
+      const gameId = document.getElementById('game-id-input').value.trim();
+      if (!gameId) {
+        return alert('Please enter a game ID.');
+      }
+      try {
+        const res = await axios.post('/api/join-game', { gameId });
+        if (res.data && res.data.game) {
+          currentGameId = gameId;
+          localGameState = res.data.game;
+          updateGameUI(localGameState);
+          startPolling();
+          alert('Joined game: ' + currentGameId);
+        } else {
+          alert('Game not found.');
+        }
+      } catch (error) {
+        console.error('Error joining game:', error);
+        alert('Error joining game.');
+      }
+    });
+
+    // Game board click: Toggle turn and update backend
+    document.getElementById('game-board').addEventListener('click', async () => {
+      if (!currentGameId) {
+        return alert('No game joined.');
+      }
+      // Toggle turn
+      localGameState.turn = localGameState.turn === 'X' ? 'O' : 'X';
+      updateGameUI(localGameState);
+      // Send updated state to backend
+      try {
+        await axios.put('/api/update-game', { gameId: currentGameId, game: localGameState });
+      } catch (error) {
+        console.error('Error updating game state:', error);
+      }
+    });
+  </script>
+</body>
+</html>
