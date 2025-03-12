@@ -1,8 +1,10 @@
 {
-    "name": "test",
-    "version": "1.0.0",
-    "dependencies": {
-      "mongodb": "^4.0.0"
-    }
+  "name": "realtime-multiplayer-game",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "mongodb": "^4.0.0"
   }
-  
+}

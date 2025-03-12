@@ -1,0 +1,12 @@
+/* Make the canvas fill the entire viewport */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+}
+
+canvas {
+  display: block;
+  background: #f0f0f0;
+}
